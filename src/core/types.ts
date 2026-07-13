@@ -27,13 +27,42 @@ export interface Operation {
   operationId?: string;
   summary?: string;
   parameters?: Parameter[];
-  requestBody?: unknown;
-  responses?: Record<string, unknown>;
+  requestBody?: RequestBody;
+  responses?: Record<string, Response>;
 }
 
 export interface Parameter {
   name: string;
   in: "query" | "header" | "path" | "cookie";
   required?: boolean;
-  schema?: Record<string, unknown>;
+  schema?: JsonSchema;
+}
+
+export interface RequestBody {
+  required?: boolean;
+  content?: Record<string, MediaType>;
+}
+
+export interface Response {
+  description?: string;
+  content?: Record<string, MediaType>;
+}
+
+export interface MediaType {
+  schema?: JsonSchema;
+}
+
+/**
+ * Subset of JSON Schema (as used by OpenAPI request/response bodies) that
+ * the classifier reasons about. `type` is `string | string[]` so 3.1's
+ * `type: ["string", "null"]` and 3.0's `nullable: true` can both be
+ * normalized without losing the original shape.
+ */
+export interface JsonSchema {
+  type?: string | string[];
+  nullable?: boolean;
+  properties?: Record<string, JsonSchema>;
+  required?: string[];
+  enum?: unknown[];
+  items?: JsonSchema;
 }
