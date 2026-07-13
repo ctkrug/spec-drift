@@ -5,13 +5,13 @@ later BUILD/QA run should be able to check each one true or false without judgme
 
 ## Epic 1 — Core diff engine (the wow moment)
 
-### [ ] 1.1 Paste two specs, get a plain-English breaking-change report *(wow moment)*
-- [ ] Pasting an old/new OpenAPI JSON pair where a request parameter became required produces
+### [x] 1.1 Paste two specs, get a plain-English breaking-change report *(wow moment)*
+- [x] Pasting an old/new OpenAPI JSON pair where a request parameter became required produces
       a report sentence naming the field, the endpoint, and the concrete consequence (e.g.
       "will now get a 400").
-- [ ] The report renders entirely client-side — no network request fires after initial page
+- [x] The report renders entirely client-side — no network request fires after initial page
       load (verified via the browser network panel while generating a report).
-- [ ] A change with no client impact (e.g. a new optional field) appears in a visibly separate
+- [x] A change with no client impact (e.g. a new optional field) appears in a visibly separate
       "safe" section rather than being omitted or mixed in with breaking changes.
 
 ### [x] 1.2 Parse OpenAPI 3.x specs (JSON and YAML) into a normalized model
@@ -40,17 +40,17 @@ later BUILD/QA run should be able to check each one true or false without judgme
 
 ## Epic 2 — Web UI and sharing
 
-### [ ] 2.1 Two-pane paste/upload input per docs/DESIGN.md
-- [ ] Both panels accept pasted text and file upload (`.json`, `.yaml`, `.yml`).
-- [ ] Every control (panel, upload button, Compare button) has themed hover, focus-visible,
+### [x] 2.1 Two-pane paste/upload input per docs/DESIGN.md
+- [x] Both panels accept pasted text and file upload (`.json`, `.yaml`, `.yml`).
+- [x] Every control (panel, upload button, Compare button) has themed hover, focus-visible,
       active, and disabled states — no unstyled native widgets.
 
-### [ ] 2.2 Report view grouped by endpoint, breaking/safe distinction, design polish
-- [ ] Breaking changes render in `--danger` and safe changes in `--success` per
+### [x] 2.2 Report view grouped by endpoint, breaking/safe distinction, design polish
+- [x] Breaking changes render in `--danger` and safe changes in `--success` per
       docs/DESIGN.md's token table.
-- [ ] Endpoints with zero detected changes are collapsed out of the report by default rather
+- [x] Endpoints with zero detected changes are collapsed out of the report by default rather
       than shown as empty noise.
-- [ ] Page matches docs/DESIGN.md's layout intent and signature drafting-line sweep at
+- [x] Page matches docs/DESIGN.md's layout intent and signature drafting-line sweep at
       390×844, 768×1024, and 1440×900.
 
 ### [ ] 2.3 Shareable link for a computed report, no backend
@@ -59,10 +59,10 @@ later BUILD/QA run should be able to check each one true or false without judgme
 - [ ] A spec pair large enough to exceed a reasonable URL length shows a clear inline message
       instead of silently producing a broken/truncated link.
 
-### [ ] 2.4 Inline error handling for invalid input
-- [ ] Pasting malformed JSON or YAML shows a specific inline error message, not a crash or
+### [x] 2.4 Inline error handling for invalid input
+- [x] Pasting malformed JSON or YAML shows a specific inline error message, not a crash or
       blank page.
-- [ ] Pasting a well-formed JSON/YAML document that isn't an OpenAPI spec (no `openapi` field)
+- [x] Pasting a well-formed JSON/YAML document that isn't an OpenAPI spec (no `openapi` field)
       shows a specific "not an OpenAPI spec" message rather than a generic parse failure.
 
 ## Epic 3 — Robustness and classifier depth
@@ -88,8 +88,8 @@ later BUILD/QA run should be able to check each one true or false without judgme
 - [ ] The page ships at least one built-in before/after spec pair loadable with a single click,
       producing a non-empty report with no spec of the visitor's own required.
 
-### [ ] 4.2 Landing and subpath-deploy polish
-- [ ] The production build (`npm run build`) uses only relative asset paths and renders
+### [x] 4.2 Landing and subpath-deploy polish
+- [x] The production build (`npm run build`) uses only relative asset paths and renders
       correctly when the `dist/` output is served from a non-root subpath.
-- [ ] The page has a custom favicon (no default globe) and a meta description suitable for a
+- [x] The page has a custom favicon (no default globe) and a meta description suitable for a
       shared link preview.
