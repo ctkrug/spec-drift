@@ -1,27 +1,77 @@
 :root {
   color-scheme: dark;
+
+  --bg: #0b1f3a;
+  --surface-1: #122a4d;
+  --surface-2: #16325c;
+  --grid-line: rgba(148, 197, 255, 0.07);
+  --text: #eaf2ff;
+  --text-muted: #8ea8d1;
+  --accent: #38bdf8;
+  --accent-support: #f2b134;
+  --danger: #f87171;
+  --success: #34d399;
+
+  --font-display: "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
+  --font-ui: "Inter", system-ui, -apple-system, sans-serif;
+
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-6: 48px;
+  --space-8: 64px;
+
+  --radius: 4px;
+  --shadow-panel: 0 0 0 1px rgba(148, 197, 255, 0.12), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-focus: 0 0 0 3px rgba(56, 189, 248, 0.35);
+  --motion-ui: 150ms ease-out;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body {
+  height: 100%;
+}
+
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
-  background: #0a1420;
-  color: #e6edf3;
+  font-family: var(--font-ui);
+  color: var(--text);
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-attachment: fixed;
 }
 
 #app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 2rem;
 }
 
-/* Placeholder scaffold styling only — the real visual direction lands in
-   BUILD following docs/DESIGN.md (see the "Design polish" backlog stories). */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: rgba(56, 189, 248, 0.3);
+}
