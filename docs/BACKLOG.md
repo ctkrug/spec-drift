@@ -67,10 +67,10 @@ later BUILD/QA run should be able to check each one true or false without judgme
 
 ## Epic 3 — Robustness and classifier depth
 
-### [ ] 3.1 Full classifier rule-set unit test coverage
-- [ ] Every breaking/safe rule listed in docs/VISION.md's "v1 done" section has at least one
+### [x] 3.1 Full classifier rule-set unit test coverage
+- [x] Every breaking/safe rule listed in docs/VISION.md's "v1 done" section has at least one
       passing test and one test that would fail if the rule regressed.
-- [ ] `npm test` exits zero with all classifier tests green.
+- [x] `npm test` exits zero with all classifier tests green.
 
 ### [x] 3.2 Support OpenAPI 3.0 and 3.1 spec variants
 - [x] A 3.0-syntax spec (`nullable: true`) and its 3.1-syntax equivalent (`type: ["string",
