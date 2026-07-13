@@ -72,10 +72,10 @@ later BUILD/QA run should be able to check each one true or false without judgme
       passing test and one test that would fail if the rule regressed.
 - [ ] `npm test` exits zero with all classifier tests green.
 
-### [ ] 3.2 Support OpenAPI 3.0 and 3.1 spec variants
-- [ ] A 3.0-syntax spec (`nullable: true`) and its 3.1-syntax equivalent (`type: ["string",
+### [x] 3.2 Support OpenAPI 3.0 and 3.1 spec variants
+- [x] A 3.0-syntax spec (`nullable: true`) and its 3.1-syntax equivalent (`type: ["string",
       "null"]`) both parse without error.
-- [ ] Diffing a 3.0-authored spec against a semantically identical 3.1-authored spec reports
+- [x] Diffing a 3.0-authored spec against a semantically identical 3.1-authored spec reports
       zero breaking changes.
 
 ### [ ] 3.3 Markdown export of the report
