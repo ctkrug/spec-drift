@@ -87,3 +87,37 @@ export function renderReport(container: HTMLElement, changes: Change[]): void {
   container.innerHTML = buildReportHtml(changes);
   container.hidden = false;
 }
+
+function renderMarkdownSection(title: string, changes: Change[]): string {
+  if (changes.length === 0) return "";
+
+  const groups = groupByEndpoint(changes);
+  const endpointBlocks = [...groups.entries()]
+    .map(
+      ([endpoint, endpointChanges]) =>
+        `### ${endpoint}\n\n${endpointChanges.map((c) => `- ${c.message}`).join("\n")}`,
+    )
+    .join("\n\n");
+
+  return `## ${title} (${changes.length})\n\n${endpointBlocks}`;
+}
+
+/**
+ * Builds a Markdown rendering of a classified change list with the same
+ * section headings, endpoint grouping, and change list as
+ * `buildReportHtml`, so an exported .md file matches what's on screen.
+ */
+export function buildReportMarkdown(changes: Change[]): string {
+  if (changes.length === 0) {
+    return "# Spec Drift Report\n\nNo differences detected — the two specs are identical.\n";
+  }
+
+  const breaking = changes.filter((c) => c.severity === "breaking");
+  const safe = changes.filter((c) => c.severity === "safe");
+
+  const sections = [renderMarkdownSection("Breaking changes", breaking), renderMarkdownSection("Safe changes", safe)]
+    .filter((section) => section.length > 0)
+    .join("\n\n");
+
+  return `# Spec Drift Report\n\n${breaking.length} breaking · ${safe.length} safe\n\n${sections}\n`;
+}
