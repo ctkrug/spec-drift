@@ -266,3 +266,105 @@ button {
   opacity: 0;
   cursor: pointer;
 }
+
+/* Report */
+
+.report {
+  padding: 0 var(--space-4) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 80ch;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.report[hidden] {
+  display: none;
+}
+
+.report-empty {
+  color: var(--text-muted);
+  text-align: center;
+  padding: var(--space-4) 0;
+}
+
+.report-summary {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.report-summary-breaking {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.report-summary-safe {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.report-section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-2);
+}
+
+.report-section--breaking .report-section-title {
+  color: var(--danger);
+}
+
+.report-section--safe .report-section-title {
+  color: var(--success);
+}
+
+.endpoint-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.endpoint-card {
+  background: var(--surface-1);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-panel);
+  padding: var(--space-2);
+}
+
+.endpoint-badge {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent-support);
+  margin-bottom: var(--space-1);
+}
+
+.change-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.change {
+  padding-left: var(--space-2);
+  border-left: 2px solid transparent;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.change--breaking {
+  border-left-color: var(--danger);
+  color: var(--text);
+}
+
+.change--safe {
+  border-left-color: var(--success);
+  color: var(--text-muted);
+}
