@@ -52,6 +52,26 @@ describe("diffRequestBodySchema", () => {
   it("returns no changes when neither operation has a request body", () => {
     expect(diffRequestBodySchema("/users", "get", {}, {})).toEqual([]);
   });
+
+  it("classifies an existing field becoming required as breaking", () => {
+    const oldOp = opWithRequestSchema({ note: { type: "string" } });
+    const newOp = opWithRequestSchema({ note: { type: "string" } }, ["note"]);
+
+    const changes = diffRequestBodySchema("/users", "post", oldOp, newOp);
+
+    expect(changes).toEqual([expect.objectContaining({ severity: "breaking" })]);
+    expect(changes[0].message).toMatch(/note.*became required/);
+  });
+
+  it("classifies an existing field becoming optional as safe", () => {
+    const oldOp = opWithRequestSchema({ note: { type: "string" } }, ["note"]);
+    const newOp = opWithRequestSchema({ note: { type: "string" } });
+
+    const changes = diffRequestBodySchema("/users", "post", oldOp, newOp);
+
+    expect(changes).toEqual([expect.objectContaining({ severity: "safe" })]);
+    expect(changes[0].message).toMatch(/note.*became optional/);
+  });
 });
 
 describe("diffResponseBodySchema", () => {
@@ -72,6 +92,46 @@ describe("diffResponseBodySchema", () => {
     expect(diffResponseBodySchema("/users/{id}", "get", oldOp, newOp)).toEqual([
       expect.objectContaining({ severity: "safe" }),
     ]);
+  });
+
+  it("classifies an existing response field becoming optional as breaking", () => {
+    const oldOp: Operation = {
+      responses: {
+        "200": {
+          content: {
+            "application/json": {
+              schema: { type: "object", properties: { email: { type: "string" } }, required: ["email"] },
+            },
+          },
+        },
+      },
+    };
+    const newOp = opWithResponseSchema("200", { email: { type: "string" } });
+
+    const changes = diffResponseBodySchema("/users/{id}", "get", oldOp, newOp);
+
+    expect(changes).toEqual([expect.objectContaining({ severity: "breaking" })]);
+    expect(changes[0].message).toMatch(/email.*no longer guaranteed/);
+  });
+
+  it("classifies an existing response field becoming required as safe", () => {
+    const oldOp = opWithResponseSchema("200", { email: { type: "string" } });
+    const newOp: Operation = {
+      responses: {
+        "200": {
+          content: {
+            "application/json": {
+              schema: { type: "object", properties: { email: { type: "string" } }, required: ["email"] },
+            },
+          },
+        },
+      },
+    };
+
+    const changes = diffResponseBodySchema("/users/{id}", "get", oldOp, newOp);
+
+    expect(changes).toEqual([expect.objectContaining({ severity: "safe" })]);
+    expect(changes[0].message).toMatch(/email.*always present/);
   });
 
   it("only compares status codes present in both specs", () => {

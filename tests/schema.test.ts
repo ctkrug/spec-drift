@@ -67,4 +67,30 @@ describe("diffSchemaProperties", () => {
   it("returns no changes when both schemas are undefined", () => {
     expect(diffSchemaProperties(undefined, undefined)).toEqual([]);
   });
+
+  it("reports an existing property becoming required", () => {
+    const oldSchema: JsonSchema = { type: "object", properties: { note: { type: "string" } } };
+    const newSchema: JsonSchema = {
+      type: "object",
+      properties: { note: { type: "string" } },
+      required: ["note"],
+    };
+
+    expect(diffSchemaProperties(oldSchema, newSchema)).toEqual([
+      { name: "note", kind: "became-required" },
+    ]);
+  });
+
+  it("reports an existing property becoming optional", () => {
+    const oldSchema: JsonSchema = {
+      type: "object",
+      properties: { note: { type: "string" } },
+      required: ["note"],
+    };
+    const newSchema: JsonSchema = { type: "object", properties: { note: { type: "string" } } };
+
+    expect(diffSchemaProperties(oldSchema, newSchema)).toEqual([
+      { name: "note", kind: "became-optional" },
+    ]);
+  });
 });
