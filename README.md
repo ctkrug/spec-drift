@@ -19,17 +19,18 @@ report.
 
 ## Features
 
-- Paste (or upload) an old and new OpenAPI 3.x spec, JSON or YAML
+- Paste (or upload) an old and new OpenAPI 3.x spec, JSON or YAML — 3.0 (`nullable: true`)
+  and 3.1 (`type: [..., "null"]`) both supported and diffed as equivalent
 - A structural diff classified against OpenAPI breaking-change semantics: parameter
   requiredness, added/removed paths and operations, enum restriction/widening, and
-  request/response body schema changes (including nested properties)
+  request/response body schema changes (nested properties, requiredness toggles, and type
+  narrowing/widening)
 - A plain-English report grouped by endpoint, breaking changes visibly separated from safe
   ones
 - Inline, specific error messages for malformed or non-OpenAPI input — never a crash or a
   blank page
-
-Planned next: a shareable link for a computed report (no backend) and Markdown export —
-see [`docs/BACKLOG.md`](docs/BACKLOG.md).
+- Export a report as Markdown, or copy a shareable link that reproduces it with no backend
+  and no stored state
 
 ## Stack
 
