@@ -363,10 +363,19 @@ button {
 
 .report-toolbar {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: var(--space-2);
 }
 
-.export-btn {
+.share-status {
+  font-size: 0.8rem;
+  color: var(--success);
+  min-height: 1.2em;
+}
+
+.export-btn,
+.share-btn {
   font-family: var(--font-ui);
   font-size: 0.8rem;
   font-weight: 600;
@@ -379,16 +388,19 @@ button {
   transition: background var(--motion-ui), border-color var(--motion-ui);
 }
 
-.export-btn:hover {
+.export-btn:hover,
+.share-btn:hover {
   background: rgba(56, 189, 248, 0.12);
 }
 
-.export-btn:focus-visible {
+.export-btn:focus-visible,
+.share-btn:focus-visible {
   outline: none;
   box-shadow: var(--shadow-focus);
 }
 
-.export-btn:active {
+.export-btn:active,
+.share-btn:active {
   transform: translateY(1px);
 }
 
