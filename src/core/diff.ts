@@ -1,13 +1,6 @@
-import type { OpenApiSpec } from "./types";
+import type { Change, OpenApiSpec } from "./types";
 
-export type Severity = "breaking" | "safe";
-
-export interface Change {
-  severity: Severity;
-  path: string;
-  method: string;
-  message: string;
-}
+export type { Change, Severity } from "./types";
 
 /**
  * Diffs two OpenAPI specs and classifies each change as breaking or safe.

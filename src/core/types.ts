@@ -66,3 +66,18 @@ export interface JsonSchema {
   enum?: unknown[];
   items?: JsonSchema;
 }
+
+export type Severity = "breaking" | "safe";
+
+/**
+ * One classified difference between an old and new spec. `method` is `"*"`
+ * for a change that applies to a whole path (e.g. the path itself was
+ * removed) rather than a single operation, so path-level changes are never
+ * duplicated once per HTTP method.
+ */
+export interface Change {
+  severity: Severity;
+  path: string;
+  method: string;
+  message: string;
+}
