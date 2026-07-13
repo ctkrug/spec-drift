@@ -14,28 +14,28 @@ later BUILD/QA run should be able to check each one true or false without judgme
 - [ ] A change with no client impact (e.g. a new optional field) appears in a visibly separate
       "safe" section rather than being omitted or mixed in with breaking changes.
 
-### [ ] 1.2 Parse OpenAPI 3.x specs (JSON and YAML) into a normalized model
-- [ ] An equivalent spec written in YAML and in JSON parse to the same normalized
+### [x] 1.2 Parse OpenAPI 3.x specs (JSON and YAML) into a normalized model
+- [x] An equivalent spec written in YAML and in JSON parse to the same normalized
       representation (same paths/operations/parameters).
-- [ ] A document missing the required `openapi` or `paths` field throws a specific, catchable
+- [x] A document missing the required `openapi` or `paths` field throws a specific, catchable
       parse error rather than crashing or silently producing an empty spec.
 
-### [ ] 1.3 Structural diff of paths, operations, parameters, and schemas
-- [ ] Adding or removing a path is reported exactly once per path (not once per HTTP method
+### [x] 1.3 Structural diff of paths, operations, parameters, and schemas
+- [x] Adding or removing a path is reported exactly once per path (not once per HTTP method
       duplicated under it).
-- [ ] Diffing a spec against an unmodified copy of itself returns zero changes.
+- [x] Diffing a spec against an unmodified copy of itself returns zero changes.
 
-### [ ] 1.4 Classify parameter and path changes as breaking vs. safe
-- [ ] Making an optional request parameter required is classified breaking; making a required
+### [x] 1.4 Classify parameter and path changes as breaking vs. safe
+- [x] Making an optional request parameter required is classified breaking; making a required
       parameter optional is classified safe.
-- [ ] Removing a path or operation is classified breaking; adding a new path or operation is
+- [x] Removing a path or operation is classified breaking; adding a new path or operation is
       classified safe.
-- [ ] Restricting an enum (removing an allowed value) is classified breaking; widening an enum
+- [x] Restricting an enum (removing an allowed value) is classified breaking; widening an enum
       (adding an allowed value) is classified safe.
 
-### [ ] 1.5 Classify request/response body schema changes
-- [ ] Adding a new required property to a request body schema is classified breaking.
-- [ ] Removing a property from a response schema is classified breaking (a client reading it
+### [x] 1.5 Classify request/response body schema changes
+- [x] Adding a new required property to a request body schema is classified breaking.
+- [x] Removing a property from a response schema is classified breaking (a client reading it
       gets `undefined`); adding a new optional response property is classified safe.
 
 ## Epic 2 — Web UI and sharing
