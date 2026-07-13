@@ -1,0 +1,27 @@
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #0a1420;
+  color: #e6edf3;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Placeholder scaffold styling only — the real visual direction lands in
+   BUILD following docs/DESIGN.md (see the "Design polish" backlog stories). */
