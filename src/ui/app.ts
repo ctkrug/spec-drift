@@ -2,6 +2,7 @@ import type { Change } from "../core/types";
 import { compareSpecs } from "./compare";
 import { buildReportMarkdown } from "./report";
 import { SAMPLE_NEW_SPEC, SAMPLE_OLD_SPEC } from "./samples";
+import { decodeShareFragment, encodeShareFragment } from "./share";
 
 const SHELL_HTML = `
   <div class="sweep-line" id="sweep-line" aria-hidden="true"></div>
@@ -55,6 +56,8 @@ const SHELL_HTML = `
   <section class="report-wrap" id="report-wrap" hidden>
     <div class="report-toolbar">
       <button class="export-btn" id="export-btn" type="button">Export .md</button>
+      <button class="share-btn" id="share-btn" type="button">Copy share link</button>
+      <span class="share-status" id="share-status" role="status" aria-live="polite"></span>
     </div>
     <div class="report" id="report" aria-live="polite"></div>
   </section>
@@ -120,11 +123,13 @@ export function mountApp(root: HTMLElement): void {
   const reportWrap = requireElement<HTMLElement>(root, "#report-wrap");
   const report = requireElement<HTMLElement>(root, "#report");
   const exportBtn = requireElement<HTMLButtonElement>(root, "#export-btn");
+  const shareBtn = requireElement<HTMLButtonElement>(root, "#share-btn");
+  const shareStatus = requireElement<HTMLElement>(root, "#share-status");
   const sweepLine = requireElement<HTMLElement>(root, "#sweep-line");
 
   let latestChanges: Change[] | null = null;
 
-  compareBtn.addEventListener("click", () => {
+  function runCompare(animate: boolean): void {
     const result = compareSpecs(oldInput.value, newInput.value);
     oldError.textContent = result.oldError ?? "";
     newError.textContent = result.newError ?? "";
@@ -136,15 +141,40 @@ export function mountApp(root: HTMLElement): void {
       return;
     }
 
-    sweepThenReveal(sweepLine, () => {
+    const reveal = () => {
       report.innerHTML = result.reportHtml as string;
       reportWrap.hidden = false;
-    });
-  });
+    };
+    if (animate) {
+      sweepThenReveal(sweepLine, reveal);
+    } else {
+      reveal();
+    }
+  }
+
+  compareBtn.addEventListener("click", () => runCompare(true));
 
   exportBtn.addEventListener("click", () => {
     if (!latestChanges) return;
     downloadTextFile("spec-drift-report.md", buildReportMarkdown(latestChanges), "text/markdown");
+  });
+
+  shareBtn.addEventListener("click", () => {
+    const fragment = encodeShareFragment(oldInput.value, newInput.value);
+    if (!fragment) {
+      shareStatus.textContent = "Spec pair is too large to share via a link.";
+      return;
+    }
+
+    const shareUrl = `${window.location.origin}${window.location.pathname}#${fragment}`;
+    navigator.clipboard
+      .writeText(shareUrl)
+      .then(() => {
+        shareStatus.textContent = "Link copied to clipboard.";
+      })
+      .catch(() => {
+        shareStatus.textContent = "Couldn't copy the link — copy it from the address bar instead.";
+      });
   });
 
   wireUpload(requireElement<HTMLInputElement>(root, "#upload-old"), oldInput);
@@ -157,4 +187,11 @@ export function mountApp(root: HTMLElement): void {
     oldError.textContent = "";
     newError.textContent = "";
   });
+
+  const shared = decodeShareFragment(window.location.hash.slice(1));
+  if (shared) {
+    oldInput.value = shared.oldText;
+    newInput.value = shared.newText;
+    runCompare(false);
+  }
 }
