@@ -4,6 +4,15 @@
   "private": true,
   "description": "Paste your old and new OpenAPI specs, get a plain-English breaking-change report.",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ctkrug/spec-drift.git"
+  },
+  "homepage": "https://github.com/ctkrug/spec-drift",
+  "bugs": "https://github.com/ctkrug/spec-drift/issues",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
