@@ -1,4 +1,6 @@
+import type { Change } from "../core/types";
 import { compareSpecs } from "./compare";
+import { buildReportMarkdown } from "./report";
 import { SAMPLE_NEW_SPEC, SAMPLE_OLD_SPEC } from "./samples";
 
 const SHELL_HTML = `
@@ -50,7 +52,12 @@ const SHELL_HTML = `
     </section>
   </main>
 
-  <section class="report" id="report" hidden aria-live="polite"></section>
+  <section class="report-wrap" id="report-wrap" hidden>
+    <div class="report-toolbar">
+      <button class="export-btn" id="export-btn" type="button">Export .md</button>
+    </div>
+    <div class="report" id="report" aria-live="polite"></div>
+  </section>
 `;
 
 function requireElement<T extends Element>(root: HTMLElement, selector: string): T {
@@ -79,6 +86,17 @@ function sweepThenReveal(sweepLine: HTMLElement, reveal: () => void): void {
   sweepLine.addEventListener("animationend", () => reveal(), { once: true });
 }
 
+/** Triggers a browser download of `content` as a file named `filename`. */
+function downloadTextFile(filename: string, content: string, mimeType: string): void {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 function wireUpload(input: HTMLInputElement, textarea: HTMLTextAreaElement): void {
   input.addEventListener("change", () => {
     const file = input.files?.[0];
@@ -99,24 +117,34 @@ export function mountApp(root: HTMLElement): void {
   const oldError = requireElement<HTMLElement>(root, "#error-old");
   const newError = requireElement<HTMLElement>(root, "#error-new");
   const compareBtn = requireElement<HTMLButtonElement>(root, "#compare-btn");
+  const reportWrap = requireElement<HTMLElement>(root, "#report-wrap");
   const report = requireElement<HTMLElement>(root, "#report");
+  const exportBtn = requireElement<HTMLButtonElement>(root, "#export-btn");
   const sweepLine = requireElement<HTMLElement>(root, "#sweep-line");
+
+  let latestChanges: Change[] | null = null;
 
   compareBtn.addEventListener("click", () => {
     const result = compareSpecs(oldInput.value, newInput.value);
     oldError.textContent = result.oldError ?? "";
     newError.textContent = result.newError ?? "";
+    latestChanges = result.changes;
 
     if (result.reportHtml === null) {
-      report.hidden = true;
+      reportWrap.hidden = true;
       report.innerHTML = "";
       return;
     }
 
     sweepThenReveal(sweepLine, () => {
       report.innerHTML = result.reportHtml as string;
-      report.hidden = false;
+      reportWrap.hidden = false;
     });
+  });
+
+  exportBtn.addEventListener("click", () => {
+    if (!latestChanges) return;
+    downloadTextFile("spec-drift-report.md", buildReportMarkdown(latestChanges), "text/markdown");
   });
 
   wireUpload(requireElement<HTMLInputElement>(root, "#upload-old"), oldInput);
