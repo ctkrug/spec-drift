@@ -28,7 +28,11 @@ textarea (new) ──┘         │
 `compareSpecs` is pure (no DOM access) so the whole paste-to-report pipeline is unit
 testable without a browser. `src/ui/app.ts` is the only module that touches the DOM: it
 mounts the shell, wires the Compare button and file-upload inputs to `compareSpecs`, and
-runs the drafting-line sweep animation before revealing the report.
+runs the drafting-line sweep animation before revealing the report. It also wires two
+export paths off the same computed `Change[]`: `buildReportMarkdown` (Export .md button,
+downloaded via a Blob/object-URL anchor) and `encodeShareFragment`/`decodeShareFragment`
+(Copy share link button, and decoding `location.hash` back into a report on page load) —
+see "Sharing a report" below.
 
 ## Modules
 
@@ -43,17 +47,31 @@ runs the drafting-line sweep animation before revealing the report.
 - **`src/core/parameters.ts`** — diffs one operation's parameters, matched by `(in, name)`.
   Classifies requiredness toggles, add/remove, and enum restriction/widening.
 - **`src/core/schema.ts`** — `diffSchemaProperties` recursively walks JSON Schema
-  `properties`, producing dotted paths (e.g. `address.zip`) for nested changes.
-  `diffRequestBodySchema`/`diffResponseBodySchema` classify those property diffs
-  (request: new required field is breaking; response: removed field is breaking).
+  `properties`, producing dotted paths (e.g. `address.zip`) for nested changes: added/removed
+  properties, requiredness toggles on properties present in both schemas
+  (`became-required`/`became-optional`), and type narrowing/widening via a normalized type
+  set that folds OpenAPI 3.0's `nullable: true` and 3.1's `type: [..., "null"]` into the same
+  representation. `diffRequestBodySchema`/`diffResponseBodySchema` classify those property
+  diffs directionally: for a request body (input), narrowing is breaking and widening is
+  safe; for a response body (output), it's the reverse — widening is breaking (a client may
+  see a type/absence it never handled) and narrowing is safe.
 - **`src/core/diff.ts`** — composes the above into `diffSpecs`, the single entry point
   the UI calls.
 - **`src/ui/compare.ts`** — `compareSpecs(oldText, newText)`: the paste-text-to-report-HTML
-  pipeline, DOM-free.
+  pipeline, DOM-free. Returns the raw `Change[]` alongside the rendered HTML so callers can
+  reuse the computed diff (e.g. for Markdown export) without re-parsing/re-diffing.
 - **`src/ui/report.ts`** — `buildReportHtml(changes)`: pure HTML-string builder (escapes
   all interpolated text) grouped into breaking/safe sections, each grouped by endpoint.
-- **`src/ui/app.ts`** — mounts the app shell, wires Compare/upload/sweep-animation DOM
-  events. The only module touching `document`/`window`.
+  `buildReportMarkdown(changes)` mirrors the same section/endpoint/change-list structure as
+  Markdown headings and bullets, for the Export .md button.
+- **`src/ui/share.ts`** — `encodeShareFragment`/`decodeShareFragment`: pure, DOM-free
+  base64url encode/decode of both spec texts into a URL hash fragment, so a report can be
+  reproduced on a fresh load by re-running the same client-side pipeline (no backend, no
+  stored state). Encoding returns `null` past `MAX_SHARE_FRAGMENT_LENGTH` instead of
+  producing a link a browser/proxy would silently truncate.
+- **`src/ui/app.ts`** — mounts the app shell, wires Compare/upload/sweep-animation/Export/
+  Share DOM events, and decodes `location.hash` on mount to auto-reproduce a shared report.
+  The only module touching `document`/`window`.
 - **`src/style.css`** — design tokens and layout per `docs/DESIGN.md` (blueprint direction).
 
 ## Running it
