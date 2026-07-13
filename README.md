@@ -1,5 +1,7 @@
 # Spec Drift
 
+[![CI](https://github.com/ctkrug/spec-drift/actions/workflows/ci.yml/badge.svg)](https://github.com/ctkrug/spec-drift/actions/workflows/ci.yml)
+
 Paste your old and new OpenAPI specs. Get a plain-English breaking-change report —
 not a raw JSON diff.
 
