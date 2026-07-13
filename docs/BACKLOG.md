@@ -1,0 +1,95 @@
+# Backlog
+
+14 stories across 4 epics. Every story lists concrete, verifiable acceptance criteria — a
+later BUILD/QA run should be able to check each one true or false without judgment calls.
+
+## Epic 1 — Core diff engine (the wow moment)
+
+### [ ] 1.1 Paste two specs, get a plain-English breaking-change report *(wow moment)*
+- [ ] Pasting an old/new OpenAPI JSON pair where a request parameter became required produces
+      a report sentence naming the field, the endpoint, and the concrete consequence (e.g.
+      "will now get a 400").
+- [ ] The report renders entirely client-side — no network request fires after initial page
+      load (verified via the browser network panel while generating a report).
+- [ ] A change with no client impact (e.g. a new optional field) appears in a visibly separate
+      "safe" section rather than being omitted or mixed in with breaking changes.
+
+### [ ] 1.2 Parse OpenAPI 3.x specs (JSON and YAML) into a normalized model
+- [ ] An equivalent spec written in YAML and in JSON parse to the same normalized
+      representation (same paths/operations/parameters).
+- [ ] A document missing the required `openapi` or `paths` field throws a specific, catchable
+      parse error rather than crashing or silently producing an empty spec.
+
+### [ ] 1.3 Structural diff of paths, operations, parameters, and schemas
+- [ ] Adding or removing a path is reported exactly once per path (not once per HTTP method
+      duplicated under it).
+- [ ] Diffing a spec against an unmodified copy of itself returns zero changes.
+
+### [ ] 1.4 Classify parameter and path changes as breaking vs. safe
+- [ ] Making an optional request parameter required is classified breaking; making a required
+      parameter optional is classified safe.
+- [ ] Removing a path or operation is classified breaking; adding a new path or operation is
+      classified safe.
+- [ ] Restricting an enum (removing an allowed value) is classified breaking; widening an enum
+      (adding an allowed value) is classified safe.
+
+### [ ] 1.5 Classify request/response body schema changes
+- [ ] Adding a new required property to a request body schema is classified breaking.
+- [ ] Removing a property from a response schema is classified breaking (a client reading it
+      gets `undefined`); adding a new optional response property is classified safe.
+
+## Epic 2 — Web UI and sharing
+
+### [ ] 2.1 Two-pane paste/upload input per docs/DESIGN.md
+- [ ] Both panels accept pasted text and file upload (`.json`, `.yaml`, `.yml`).
+- [ ] Every control (panel, upload button, Compare button) has themed hover, focus-visible,
+      active, and disabled states — no unstyled native widgets.
+
+### [ ] 2.2 Report view grouped by endpoint, breaking/safe distinction, design polish
+- [ ] Breaking changes render in `--danger` and safe changes in `--success` per
+      docs/DESIGN.md's token table.
+- [ ] Endpoints with zero detected changes are collapsed out of the report by default rather
+      than shown as empty noise.
+- [ ] Page matches docs/DESIGN.md's layout intent and signature drafting-line sweep at
+      390×844, 768×1024, and 1440×900.
+
+### [ ] 2.3 Shareable link for a computed report, no backend
+- [ ] Opening a generated share URL in a fresh browser tab (no prior localStorage/session
+      state) reproduces the identical report.
+- [ ] A spec pair large enough to exceed a reasonable URL length shows a clear inline message
+      instead of silently producing a broken/truncated link.
+
+### [ ] 2.4 Inline error handling for invalid input
+- [ ] Pasting malformed JSON or YAML shows a specific inline error message, not a crash or
+      blank page.
+- [ ] Pasting a well-formed JSON/YAML document that isn't an OpenAPI spec (no `openapi` field)
+      shows a specific "not an OpenAPI spec" message rather than a generic parse failure.
+
+## Epic 3 — Robustness and classifier depth
+
+### [ ] 3.1 Full classifier rule-set unit test coverage
+- [ ] Every breaking/safe rule listed in docs/VISION.md's "v1 done" section has at least one
+      passing test and one test that would fail if the rule regressed.
+- [ ] `npm test` exits zero with all classifier tests green.
+
+### [ ] 3.2 Support OpenAPI 3.0 and 3.1 spec variants
+- [ ] A 3.0-syntax spec (`nullable: true`) and its 3.1-syntax equivalent (`type: ["string",
+      "null"]`) both parse without error.
+- [ ] Diffing a 3.0-authored spec against a semantically identical 3.1-authored spec reports
+      zero breaking changes.
+
+### [ ] 3.3 Markdown export of the report
+- [ ] Clicking "Export" downloads a `.md` file whose section headings and change list match
+      the on-screen report.
+
+## Epic 4 — Ship polish
+
+### [ ] 4.1 Sample spec quick-load pairs for first-time users
+- [ ] The page ships at least one built-in before/after spec pair loadable with a single click,
+      producing a non-empty report with no spec of the visitor's own required.
+
+### [ ] 4.2 Landing and subpath-deploy polish
+- [ ] The production build (`npm run build`) uses only relative asset paths and renders
+      correctly when the `dist/` output is served from a non-root subpath.
+- [ ] The page has a custom favicon (no default globe) and a meta description suitable for a
+      shared link preview.
