@@ -27,6 +27,9 @@ export function parseSpec(text: string): OpenApiSpec {
   if (!("openapi" in doc)) {
     throw new SpecParseError('Spec is missing the required "openapi" field.');
   }
+  if (!("paths" in doc)) {
+    throw new SpecParseError('Spec is missing the required "paths" field.');
+  }
 
   const spec = doc as Partial<OpenApiSpec>;
   return {
