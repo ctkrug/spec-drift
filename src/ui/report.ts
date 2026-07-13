@@ -82,12 +82,6 @@ export function buildReportHtml(changes: Change[]): string {
   `;
 }
 
-/** Renders a classified change list into the report container. */
-export function renderReport(container: HTMLElement, changes: Change[]): void {
-  container.innerHTML = buildReportHtml(changes);
-  container.hidden = false;
-}
-
 function renderMarkdownSection(title: string, changes: Change[]): string {
   if (changes.length === 0) return "";
 
