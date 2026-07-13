@@ -24,4 +24,8 @@ describe("parseSpec", () => {
   it("rejects a document missing the openapi field", () => {
     expect(() => parseSpec("paths: {}\n")).toThrow(/openapi/);
   });
+
+  it("rejects a document missing the paths field", () => {
+    expect(() => parseSpec('{"openapi": "3.0.0"}')).toThrow(/paths/);
+  });
 });
