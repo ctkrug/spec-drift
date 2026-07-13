@@ -1,6 +1,7 @@
 import { compareSpecs } from "./compare";
 
 const SHELL_HTML = `
+  <div class="sweep-line" id="sweep-line" aria-hidden="true"></div>
   <header class="topbar">
     <p class="wordmark">Spec<span class="wordmark-accent">Drift</span></p>
     <p class="tagline">Paste your old and new OpenAPI specs. Get a plain-English breaking-change report.</p>
@@ -56,6 +57,26 @@ function requireElement<T extends Element>(root: HTMLElement, selector: string):
   return el;
 }
 
+/**
+ * Runs the drafting-line sweep across the page (~600ms) and reveals the
+ * report once it finishes, so the report appears to land underneath the
+ * measuring line rather than popping in. Skipped entirely under
+ * prefers-reduced-motion — the report reveal itself is unaffected.
+ */
+function sweepThenReveal(sweepLine: HTMLElement, reveal: () => void): void {
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (prefersReducedMotion) {
+    reveal();
+    return;
+  }
+
+  sweepLine.classList.remove("is-active");
+  // Force a reflow so re-adding the class restarts the animation on repeat clicks.
+  void sweepLine.offsetWidth;
+  sweepLine.classList.add("is-active");
+  sweepLine.addEventListener("animationend", () => reveal(), { once: true });
+}
+
 function wireUpload(input: HTMLInputElement, textarea: HTMLTextAreaElement): void {
   input.addEventListener("change", () => {
     const file = input.files?.[0];
@@ -77,6 +98,7 @@ export function mountApp(root: HTMLElement): void {
   const newError = requireElement<HTMLElement>(root, "#error-new");
   const compareBtn = requireElement<HTMLButtonElement>(root, "#compare-btn");
   const report = requireElement<HTMLElement>(root, "#report");
+  const sweepLine = requireElement<HTMLElement>(root, "#sweep-line");
 
   compareBtn.addEventListener("click", () => {
     const result = compareSpecs(oldInput.value, newInput.value);
@@ -89,8 +111,10 @@ export function mountApp(root: HTMLElement): void {
       return;
     }
 
-    report.innerHTML = result.reportHtml;
-    report.hidden = false;
+    sweepThenReveal(sweepLine, () => {
+      report.innerHTML = result.reportHtml as string;
+      report.hidden = false;
+    });
   });
 
   wireUpload(requireElement<HTMLInputElement>(root, "#upload-old"), oldInput);
