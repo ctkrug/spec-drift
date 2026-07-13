@@ -78,8 +78,8 @@ later BUILD/QA run should be able to check each one true or false without judgme
 - [x] Diffing a 3.0-authored spec against a semantically identical 3.1-authored spec reports
       zero breaking changes.
 
-### [ ] 3.3 Markdown export of the report
-- [ ] Clicking "Export" downloads a `.md` file whose section headings and change list match
+### [x] 3.3 Markdown export of the report
+- [x] Clicking "Export" downloads a `.md` file whose section headings and change list match
       the on-screen report.
 
 ## Epic 4 — Ship polish
