@@ -53,10 +53,10 @@ later BUILD/QA run should be able to check each one true or false without judgme
 - [x] Page matches docs/DESIGN.md's layout intent and signature drafting-line sweep at
       390×844, 768×1024, and 1440×900.
 
-### [ ] 2.3 Shareable link for a computed report, no backend
-- [ ] Opening a generated share URL in a fresh browser tab (no prior localStorage/session
+### [x] 2.3 Shareable link for a computed report, no backend
+- [x] Opening a generated share URL in a fresh browser tab (no prior localStorage/session
       state) reproduces the identical report.
-- [ ] A spec pair large enough to exceed a reasonable URL length shows a clear inline message
+- [x] A spec pair large enough to exceed a reasonable URL length shows a clear inline message
       instead of silently producing a broken/truncated link.
 
 ### [x] 2.4 Inline error handling for invalid input
