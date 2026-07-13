@@ -341,18 +341,55 @@ button {
 
 /* Report */
 
-.report {
+.report-wrap {
   padding: 0 var(--space-4) var(--space-8);
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
   max-width: 80ch;
   margin: 0 auto;
   width: 100%;
 }
 
-.report[hidden] {
+.report-wrap[hidden] {
   display: none;
+}
+
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.report-toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.export-btn {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background var(--motion-ui), border-color var(--motion-ui);
+}
+
+.export-btn:hover {
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.export-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.export-btn:active {
+  transform: translateY(1px);
 }
 
 .report-empty {
