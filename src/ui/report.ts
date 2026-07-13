@@ -45,31 +45,34 @@ function renderSection(title: string, severityClass: "breaking" | "safe", change
   `;
 }
 
+const HTML_ESCAPES: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+};
+
 function escapeHtml(value: string): string {
-  const div = document.createElement("div");
-  div.textContent = value;
-  return div.innerHTML;
+  return value.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char]);
 }
 
 /**
- * Renders a classified change list into the report container, grouped by
+ * Builds the report markup for a classified change list, grouped by
  * endpoint within two always-present sections (breaking, then safe) so a
  * zero-breaking-changes result reads as an explicit "nothing breaks"
- * rather than an empty page.
+ * rather than an empty page. Pure string-building, kept separate from DOM
+ * mutation so it's testable without a browser environment.
  */
-export function renderReport(container: HTMLElement, changes: Change[]): void {
+export function buildReportHtml(changes: Change[]): string {
   if (changes.length === 0) {
-    container.innerHTML = `
-      <p class="report-empty">No differences detected — the two specs are identical.</p>
-    `;
-    container.hidden = false;
-    return;
+    return `<p class="report-empty">No differences detected — the two specs are identical.</p>`;
   }
 
   const breaking = changes.filter((c) => c.severity === "breaking");
   const safe = changes.filter((c) => c.severity === "safe");
 
-  container.innerHTML = `
+  return `
     <p class="report-summary">
       <span class="report-summary-breaking">${breaking.length} breaking</span> ·
       <span class="report-summary-safe">${safe.length} safe</span>
@@ -77,5 +80,10 @@ export function renderReport(container: HTMLElement, changes: Change[]): void {
     ${renderSection("Breaking changes", "breaking", breaking)}
     ${renderSection("Safe changes", "safe", safe)}
   `;
+}
+
+/** Renders a classified change list into the report container. */
+export function renderReport(container: HTMLElement, changes: Change[]): void {
+  container.innerHTML = buildReportHtml(changes);
   container.hidden = false;
 }
