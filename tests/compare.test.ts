@@ -12,6 +12,16 @@ describe("compareSpecs", () => {
     expect(result.reportHtml).toMatch(/became required/);
   });
 
+  it("returns the raw Change[] alongside the rendered HTML", () => {
+    const result = compareSpecs(VALID_OLD, VALID_NEW);
+    expect(result.changes).toEqual([expect.objectContaining({ severity: "breaking" })]);
+  });
+
+  it("returns null changes when either spec fails to parse", () => {
+    const result = compareSpecs("{not valid json", VALID_NEW);
+    expect(result.changes).toBeNull();
+  });
+
   it("surfaces a specific error for a malformed old spec without touching the new one", () => {
     const result = compareSpecs("{not valid json", VALID_NEW);
     expect(result.oldError).toMatch(/Invalid JSON/);
