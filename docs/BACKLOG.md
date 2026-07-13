@@ -84,8 +84,8 @@ later BUILD/QA run should be able to check each one true or false without judgme
 
 ## Epic 4 — Ship polish
 
-### [ ] 4.1 Sample spec quick-load pairs for first-time users
-- [ ] The page ships at least one built-in before/after spec pair loadable with a single click,
+### [x] 4.1 Sample spec quick-load pairs for first-time users
+- [x] The page ships at least one built-in before/after spec pair loadable with a single click,
       producing a non-empty report with no spec of the visitor's own required.
 
 ### [x] 4.2 Landing and subpath-deploy polish
