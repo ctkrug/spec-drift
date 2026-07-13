@@ -7,12 +7,30 @@ export type PropertyChangeKind =
   | "added-optional"
   | "removed"
   | "became-required"
-  | "became-optional";
+  | "became-optional"
+  | "type-narrowed"
+  | "type-widened";
 
 export interface PropertyChange {
   /** Dotted path from the schema root, e.g. "address.zip". */
   name: string;
   kind: PropertyChangeKind;
+  /** Populated only for type-narrowed/type-widened: the JSON types that changed. */
+  types?: string[];
+}
+
+/**
+ * Normalizes a schema's allowed JSON types into a set, folding OpenAPI
+ * 3.0's `nullable: true` and 3.1's `type: [..., "null"]` into the same
+ * "null" member so a spec migrated between the two dialects diffs as
+ * unchanged. Returns null when the schema declares no `type` at all, so an
+ * untyped property never produces a spurious type change.
+ */
+function normalizedTypeSet(schema: JsonSchema | undefined): Set<string> | null {
+  if (!schema || schema.type === undefined) return null;
+  const types = new Set(Array.isArray(schema.type) ? schema.type : [schema.type]);
+  if (schema.nullable) types.add("null");
+  return types;
 }
 
 /**
@@ -42,6 +60,19 @@ export function diffSchemaProperties(
     const isRequired = newRequired.has(name);
     if (wasRequired !== isRequired) {
       changes.push({ name: dottedName, kind: isRequired ? "became-required" : "became-optional" });
+    }
+
+    const oldTypes = normalizedTypeSet(oldProps[name]);
+    const newTypes = normalizedTypeSet(newProps[name]);
+    if (oldTypes && newTypes) {
+      const removedTypes = [...oldTypes].filter((t) => !newTypes.has(t));
+      const addedTypes = [...newTypes].filter((t) => !oldTypes.has(t));
+      if (removedTypes.length > 0) {
+        changes.push({ name: dottedName, kind: "type-narrowed", types: removedTypes });
+      }
+      if (addedTypes.length > 0) {
+        changes.push({ name: dottedName, kind: "type-widened", types: addedTypes });
+      }
     }
 
     changes.push(...diffSchemaProperties(oldProps[name], newProps[name], dottedName));
@@ -112,6 +143,20 @@ export function diffRequestBodySchema(
           path,
           method,
           message: `"${change.name}" was removed from the request body schema of ${endpoint}.`,
+        };
+      case "type-narrowed":
+        return {
+          severity: "breaking",
+          path,
+          method,
+          message: `"${change.name}" no longer accepts type ${(change.types ?? []).join(", ")} in the request body of ${endpoint} — clients sending that type will now get a 400.`,
+        };
+      case "type-widened":
+        return {
+          severity: "safe",
+          path,
+          method,
+          message: `"${change.name}" now also accepts type ${(change.types ?? []).join(", ")} in the request body of ${endpoint}.`,
         };
     }
   });
@@ -184,6 +229,20 @@ function responseFieldChange(
         path,
         method,
         message: `"${change.name}" is a new field in the ${status} response body of ${endpoint}.`,
+      };
+    case "type-widened":
+      return {
+        severity: "breaking",
+        path,
+        method,
+        message: `"${change.name}" may now also be type ${(change.types ?? []).join(", ")} in the ${status} response body of ${endpoint} — clients expecting only the old type may break.`,
+      };
+    case "type-narrowed":
+      return {
+        severity: "safe",
+        path,
+        method,
+        message: `"${change.name}" is now more narrowly typed in the ${status} response body of ${endpoint} (no longer type ${(change.types ?? []).join(", ")}).`,
       };
   }
 }
