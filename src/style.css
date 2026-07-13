@@ -103,6 +103,34 @@ button {
   max-width: 70ch;
 }
 
+.sample-btn {
+  align-self: flex-start;
+  margin-top: var(--space-1);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-support);
+  background: transparent;
+  border: 1px solid rgba(242, 177, 52, 0.4);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background var(--motion-ui), border-color var(--motion-ui);
+}
+
+.sample-btn:hover {
+  background: rgba(242, 177, 52, 0.12);
+}
+
+.sample-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.sample-btn:active {
+  transform: translateY(1px);
+}
+
 /* Workspace: two paste panels + a center gutter holding Compare */
 
 .workspace {

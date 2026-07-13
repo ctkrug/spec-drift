@@ -1,10 +1,12 @@
 import { compareSpecs } from "./compare";
+import { SAMPLE_NEW_SPEC, SAMPLE_OLD_SPEC } from "./samples";
 
 const SHELL_HTML = `
   <div class="sweep-line" id="sweep-line" aria-hidden="true"></div>
   <header class="topbar">
     <p class="wordmark">Spec<span class="wordmark-accent">Drift</span></p>
     <p class="tagline">Paste your old and new OpenAPI specs. Get a plain-English breaking-change report.</p>
+    <button class="sample-btn" id="sample-btn" type="button">Load sample spec pair</button>
   </header>
   <main class="workspace" id="workspace">
     <section class="pane" data-role="old">
@@ -119,4 +121,12 @@ export function mountApp(root: HTMLElement): void {
 
   wireUpload(requireElement<HTMLInputElement>(root, "#upload-old"), oldInput);
   wireUpload(requireElement<HTMLInputElement>(root, "#upload-new"), newInput);
+
+  const sampleBtn = requireElement<HTMLButtonElement>(root, "#sample-btn");
+  sampleBtn.addEventListener("click", () => {
+    oldInput.value = SAMPLE_OLD_SPEC;
+    newInput.value = SAMPLE_NEW_SPEC;
+    oldError.textContent = "";
+    newError.textContent = "";
+  });
 }
