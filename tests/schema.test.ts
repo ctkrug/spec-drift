@@ -93,4 +93,43 @@ describe("diffSchemaProperties", () => {
       { name: "note", kind: "became-optional" },
     ]);
   });
+
+  it("reports a property type narrowing", () => {
+    const oldSchema: JsonSchema = { type: "object", properties: { count: { type: ["number", "string"] } } };
+    const newSchema: JsonSchema = { type: "object", properties: { count: { type: "number" } } };
+
+    expect(diffSchemaProperties(oldSchema, newSchema)).toEqual([
+      { name: "count", kind: "type-narrowed", types: ["string"] },
+    ]);
+  });
+
+  it("reports a property type widening", () => {
+    const oldSchema: JsonSchema = { type: "object", properties: { count: { type: "number" } } };
+    const newSchema: JsonSchema = { type: "object", properties: { count: { type: ["number", "string"] } } };
+
+    expect(diffSchemaProperties(oldSchema, newSchema)).toEqual([
+      { name: "count", kind: "type-widened", types: ["string"] },
+    ]);
+  });
+
+  it("treats 3.0 nullable and 3.1 type-array null as equivalent", () => {
+    const openApi30Schema: JsonSchema = {
+      type: "object",
+      properties: { note: { type: "string", nullable: true } },
+    };
+    const openApi31Schema: JsonSchema = {
+      type: "object",
+      properties: { note: { type: ["string", "null"] } },
+    };
+
+    expect(diffSchemaProperties(openApi30Schema, openApi31Schema)).toEqual([]);
+    expect(diffSchemaProperties(openApi31Schema, openApi30Schema)).toEqual([]);
+  });
+
+  it("does not report a type change when a property omits type entirely", () => {
+    const oldSchema: JsonSchema = { type: "object", properties: { data: {} } };
+    const newSchema: JsonSchema = { type: "object", properties: { data: { type: "string" } } };
+
+    expect(diffSchemaProperties(oldSchema, newSchema)).toEqual([]);
+  });
 });
