@@ -2,7 +2,12 @@ import type { Change, JsonSchema, Operation } from "./types";
 
 const JSON_MEDIA_TYPE = "application/json";
 
-export type PropertyChangeKind = "added-required" | "added-optional" | "removed";
+export type PropertyChangeKind =
+  | "added-required"
+  | "added-optional"
+  | "removed"
+  | "became-required"
+  | "became-optional";
 
 export interface PropertyChange {
   /** Dotted path from the schema root, e.g. "address.zip". */
@@ -22,6 +27,7 @@ export function diffSchemaProperties(
 ): PropertyChange[] {
   const oldProps = oldSchema?.properties ?? {};
   const newProps = newSchema?.properties ?? {};
+  const oldRequired = new Set(oldSchema?.required ?? []);
   const newRequired = new Set(newSchema?.required ?? []);
   const changes: PropertyChange[] = [];
 
@@ -31,6 +37,13 @@ export function diffSchemaProperties(
       changes.push({ name: dottedName, kind: "removed" });
       continue;
     }
+
+    const wasRequired = oldRequired.has(name);
+    const isRequired = newRequired.has(name);
+    if (wasRequired !== isRequired) {
+      changes.push({ name: dottedName, kind: isRequired ? "became-required" : "became-optional" });
+    }
+
     changes.push(...diffSchemaProperties(oldProps[name], newProps[name], dottedName));
   }
 
@@ -64,28 +77,43 @@ export function diffRequestBodySchema(
 
   const endpoint = `${method.toUpperCase()} ${path}`;
   return diffSchemaProperties(oldSchema, newSchema).map((change) => {
-    if (change.kind === "added-required") {
-      return {
-        severity: "breaking",
-        path,
-        method,
-        message: `"${change.name}" became required in the request body of ${endpoint} — any client not sending it will now get a 400.`,
-      };
+    switch (change.kind) {
+      case "added-required":
+        return {
+          severity: "breaking",
+          path,
+          method,
+          message: `"${change.name}" became required in the request body of ${endpoint} — any client not sending it will now get a 400.`,
+        };
+      case "added-optional":
+        return {
+          severity: "safe",
+          path,
+          method,
+          message: `"${change.name}" is a new optional field in the request body of ${endpoint}.`,
+        };
+      case "became-required":
+        return {
+          severity: "breaking",
+          path,
+          method,
+          message: `"${change.name}" became required in the request body of ${endpoint} — any client not sending it will now get a 400.`,
+        };
+      case "became-optional":
+        return {
+          severity: "safe",
+          path,
+          method,
+          message: `"${change.name}" became optional in the request body of ${endpoint}.`,
+        };
+      case "removed":
+        return {
+          severity: "safe",
+          path,
+          method,
+          message: `"${change.name}" was removed from the request body schema of ${endpoint}.`,
+        };
     }
-    if (change.kind === "added-optional") {
-      return {
-        severity: "safe",
-        path,
-        method,
-        message: `"${change.name}" is a new optional field in the request body of ${endpoint}.`,
-      };
-    }
-    return {
-      severity: "safe",
-      path,
-      method,
-      message: `"${change.name}" was removed from the request body schema of ${endpoint}.`,
-    };
   });
 }
 
@@ -113,23 +141,49 @@ export function diffResponseBodySchema(
     if (!oldSchema && !newSchema) continue;
 
     for (const change of diffSchemaProperties(oldSchema, newSchema)) {
-      changes.push(
-        change.kind === "removed"
-          ? {
-              severity: "breaking",
-              path,
-              method,
-              message: `"${change.name}" was removed from the ${status} response body of ${endpoint} — clients reading it will get undefined.`,
-            }
-          : {
-              severity: "safe",
-              path,
-              method,
-              message: `"${change.name}" is a new field in the ${status} response body of ${endpoint}.`,
-            },
-      );
+      changes.push(responseFieldChange(path, method, status, endpoint, change));
     }
   }
 
   return changes;
+}
+
+function responseFieldChange(
+  path: string,
+  method: string,
+  status: string,
+  endpoint: string,
+  change: PropertyChange,
+): Change {
+  switch (change.kind) {
+    case "removed":
+      return {
+        severity: "breaking",
+        path,
+        method,
+        message: `"${change.name}" was removed from the ${status} response body of ${endpoint} — clients reading it will get undefined.`,
+      };
+    case "became-optional":
+      return {
+        severity: "breaking",
+        path,
+        method,
+        message: `"${change.name}" is no longer guaranteed present in the ${status} response body of ${endpoint} — clients relying on it may get undefined.`,
+      };
+    case "became-required":
+      return {
+        severity: "safe",
+        path,
+        method,
+        message: `"${change.name}" is now always present in the ${status} response body of ${endpoint}.`,
+      };
+    case "added-required":
+    case "added-optional":
+      return {
+        severity: "safe",
+        path,
+        method,
+        message: `"${change.name}" is a new field in the ${status} response body of ${endpoint}.`,
+      };
+  }
 }
