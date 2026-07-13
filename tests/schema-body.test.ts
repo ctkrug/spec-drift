@@ -72,6 +72,26 @@ describe("diffRequestBodySchema", () => {
     expect(changes).toEqual([expect.objectContaining({ severity: "safe" })]);
     expect(changes[0].message).toMatch(/note.*became optional/);
   });
+
+  it("classifies a narrowed request field type as breaking", () => {
+    const oldOp = opWithRequestSchema({ count: { type: ["number", "string"] } });
+    const newOp = opWithRequestSchema({ count: { type: "number" } });
+
+    const changes = diffRequestBodySchema("/users", "post", oldOp, newOp);
+
+    expect(changes).toEqual([expect.objectContaining({ severity: "breaking" })]);
+    expect(changes[0].message).toMatch(/count.*no longer accepts/);
+  });
+
+  it("classifies a widened request field type as safe", () => {
+    const oldOp = opWithRequestSchema({ count: { type: "number" } });
+    const newOp = opWithRequestSchema({ count: { type: ["number", "string"] } });
+
+    const changes = diffRequestBodySchema("/users", "post", oldOp, newOp);
+
+    expect(changes).toEqual([expect.objectContaining({ severity: "safe" })]);
+    expect(changes[0].message).toMatch(/count.*now also accepts/);
+  });
 });
 
 describe("diffResponseBodySchema", () => {
@@ -132,6 +152,26 @@ describe("diffResponseBodySchema", () => {
 
     expect(changes).toEqual([expect.objectContaining({ severity: "safe" })]);
     expect(changes[0].message).toMatch(/email.*always present/);
+  });
+
+  it("classifies a widened response field type as breaking", () => {
+    const oldOp = opWithResponseSchema("200", { note: { type: "string" } });
+    const newOp = opWithResponseSchema("200", { note: { type: ["string", "null"] } });
+
+    const changes = diffResponseBodySchema("/users/{id}", "get", oldOp, newOp);
+
+    expect(changes).toEqual([expect.objectContaining({ severity: "breaking" })]);
+    expect(changes[0].message).toMatch(/note.*may now also be/);
+  });
+
+  it("classifies a narrowed response field type as safe", () => {
+    const oldOp = opWithResponseSchema("200", { note: { type: ["string", "null"] } });
+    const newOp = opWithResponseSchema("200", { note: { type: "string" } });
+
+    const changes = diffResponseBodySchema("/users/{id}", "get", oldOp, newOp);
+
+    expect(changes).toEqual([expect.objectContaining({ severity: "safe" })]);
+    expect(changes[0].message).toMatch(/note.*more narrowly typed/);
   });
 
   it("only compares status codes present in both specs", () => {
