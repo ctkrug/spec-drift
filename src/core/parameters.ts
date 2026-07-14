@@ -5,6 +5,17 @@ function paramKey(param: Parameter): string {
 }
 
 /**
+ * Normalizes an untrusted `parameters` value (the source spec was only
+ * loosely validated by `parseSpec`) down to actual parameter objects,
+ * dropping anything malformed — a non-array value, or a null/non-object
+ * entry within one — instead of letting `.map`/property access on it throw.
+ */
+function sanitizeParams(params: unknown): Parameter[] {
+  if (!Array.isArray(params)) return [];
+  return params.filter((p): p is Parameter => typeof p === "object" && p !== null);
+}
+
+/**
  * Diffs the parameters of one operation between old and new specs.
  * Parameters are matched by (in, name) rather than position, since
  * OpenAPI parameter order carries no meaning.
@@ -16,8 +27,8 @@ export function diffParameters(
   newParams: Parameter[] = [],
 ): Change[] {
   const changes: Change[] = [];
-  const oldByKey = new Map(oldParams.map((p) => [paramKey(p), p]));
-  const newByKey = new Map(newParams.map((p) => [paramKey(p), p]));
+  const oldByKey = new Map(sanitizeParams(oldParams).map((p) => [paramKey(p), p]));
+  const newByKey = new Map(sanitizeParams(newParams).map((p) => [paramKey(p), p]));
   const endpoint = `${method.toUpperCase()} ${path}`;
 
   for (const [key, oldParam] of oldByKey) {
