@@ -21,6 +21,21 @@ describe("parseSpec", () => {
     expect(() => parseSpec("{not valid json")).toThrow(/Invalid JSON/);
   });
 
+  it("rejects malformed YAML with a specific error", () => {
+    expect(() => parseSpec("openapi: 3.0.0\n  bad: [indent\n")).toThrow(/Invalid YAML/);
+  });
+
+  it("rejects a YAML document that parses to a scalar rather than an object", () => {
+    expect(() => parseSpec("just a plain string, not a mapping")).toThrow(/must be a JSON or YAML object/);
+  });
+
+  it("rejects a YAML document that parses to a list rather than a spec object", () => {
+    // A YAML list is technically `typeof === "object"`, so it passes the
+    // object-shape guard and instead fails the very next check — a list has
+    // no "openapi" key. Either way, a specific error surfaces, not a crash.
+    expect(() => parseSpec("- one\n- two\n")).toThrow(/openapi/);
+  });
+
   it("rejects a document missing the openapi field", () => {
     expect(() => parseSpec("paths: {}\n")).toThrow(/openapi/);
   });
