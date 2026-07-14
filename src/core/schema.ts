@@ -2,6 +2,15 @@ import type { Change, JsonSchema, Operation } from "./types";
 
 const JSON_MEDIA_TYPE = "application/json";
 
+/**
+ * Recursion cap for `diffSchemaProperties`. Real-world schemas never nest
+ * this deep; the cap exists to stop a pathological input from blowing the
+ * stack — notably a YAML document using anchors/aliases to build a schema
+ * that references itself, which parses into a genuinely circular object
+ * (js-yaml resolves aliases to the same object instance, not a copy).
+ */
+const MAX_SCHEMA_DEPTH = 64;
+
 export type PropertyChangeKind =
   | "added-required"
   | "added-optional"
@@ -42,6 +51,7 @@ export function diffSchemaProperties(
   oldSchema: JsonSchema | undefined,
   newSchema: JsonSchema | undefined,
   prefix = "",
+  depth = 0,
 ): PropertyChange[] {
   const oldProps = oldSchema?.properties ?? {};
   const newProps = newSchema?.properties ?? {};
@@ -75,7 +85,9 @@ export function diffSchemaProperties(
       }
     }
 
-    changes.push(...diffSchemaProperties(oldProps[name], newProps[name], dottedName));
+    if (depth < MAX_SCHEMA_DEPTH) {
+      changes.push(...diffSchemaProperties(oldProps[name], newProps[name], dottedName, depth + 1));
+    }
   }
 
   for (const name of Object.keys(newProps)) {
