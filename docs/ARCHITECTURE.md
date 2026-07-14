@@ -41,11 +41,15 @@ see "Sharing a report" below.
   shared `Change`/`Severity` output type every classifier returns.
 - **`src/core/parse.ts`** — turns pasted JSON or YAML text into an `OpenApiSpec`, or throws
   `SpecParseError` with a specific message (empty input, invalid JSON/YAML, missing
-  `openapi` field).
+  `openapi` field, or a document that parses to a non-object shape).
 - **`src/core/paths.ts`** — structural diff of the path/operation set. A path add/remove
-  is one `Change` (`method: "*"`), not one per HTTP method.
+  is one `Change` (`method: "*"`), not one per HTTP method. Exports `normalizePathItem`,
+  shared with `diff.ts`, which coerces a `null`/non-object path item (e.g. a YAML key with
+  nothing indented underneath it) to `{}` instead of throwing on property access.
 - **`src/core/parameters.ts`** — diffs one operation's parameters, matched by `(in, name)`.
-  Classifies requiredness toggles, add/remove, and enum restriction/widening.
+  Classifies requiredness toggles, add/remove, and enum restriction/widening. Sanitizes an
+  untrusted `parameters` value first (non-array → empty, null/non-object entries dropped),
+  since `parseSpec` only validates the spec's top-level shape.
 - **`src/core/schema.ts`** — `diffSchemaProperties` recursively walks JSON Schema
   `properties`, producing dotted paths (e.g. `address.zip`) for nested changes: added/removed
   properties, requiredness toggles on properties present in both schemas
@@ -54,7 +58,9 @@ see "Sharing a report" below.
   representation. `diffRequestBodySchema`/`diffResponseBodySchema` classify those property
   diffs directionally: for a request body (input), narrowing is breaking and widening is
   safe; for a response body (output), it's the reverse — widening is breaking (a client may
-  see a type/absence it never handled) and narrowing is safe.
+  see a type/absence it never handled) and narrowing is safe. Recursion is capped at 64
+  levels so a YAML anchor/alias that makes a schema reference itself (a genuine circular
+  object, not just deep nesting) can't blow the call stack.
 - **`src/core/diff.ts`** — composes the above into `diffSpecs`, the single entry point
   the UI calls.
 - **`src/ui/compare.ts`** — `compareSpecs(oldText, newText)`: the paste-text-to-report-HTML
@@ -86,4 +92,7 @@ npm run build       # static production build into dist/, base path "./"
 ```
 
 Tests live in `tests/`, mirroring the `src/core` and `src/ui` module split. Fixtures for
-end-to-end diff tests are in `tests/fixtures/`.
+end-to-end diff tests are in `tests/fixtures/`. `tests/app.test.ts` covers the DOM-touching
+`app.ts` module in a jsdom environment (scoped via a `// @vitest-environment jsdom` docblock
+so the rest of the suite stays in the faster default node environment). `npx vitest run
+--coverage` (via `@vitest/coverage-v8`) reports line/branch/function coverage.
