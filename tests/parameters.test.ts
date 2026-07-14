@@ -83,4 +83,18 @@ describe("diffParameters", () => {
     const newParams = [param({ name: "limit", in: "query" }), param({ name: "id", in: "query" })];
     expect(diffParameters("/pets", "get", oldParams, newParams)).toEqual([]);
   });
+
+  it("treats a malformed non-array parameters value as no parameters", () => {
+    // A hand-edited or corrupt spec might carry `parameters` as the wrong
+    // JSON type entirely; that's a parse-worthy defect in the source spec,
+    // not a reason for the diff engine to throw.
+    const malformed = "not-an-array" as unknown as Parameter[];
+    expect(diffParameters("/pets", "get", malformed, [])).toEqual([]);
+  });
+
+  it("ignores null/non-object entries within an otherwise valid parameters array", () => {
+    const withJunkEntries = [null, "also-junk", param({ name: "id" })] as unknown as Parameter[];
+    const changes = diffParameters("/pets", "get", withJunkEntries, [param({ name: "id" })]);
+    expect(changes).toEqual([]);
+  });
 });
