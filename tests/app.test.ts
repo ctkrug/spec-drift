@@ -217,4 +217,24 @@ describe("mountApp", () => {
     expect(isHidden(root, "#report-wrap")).toBe(false);
     expect(root.querySelector("#report")!.innerHTML).toMatch(/became required/);
   });
+
+  it("loads an uploaded file's text into the corresponding textarea", async () => {
+    mountApp(root);
+    const input = root.querySelector<HTMLInputElement>("#upload-old")!;
+    const file = new File([VALID_OLD], "spec.json", { type: "application/json" });
+    // jsdom has no DataTransfer/FileList constructor; a minimal array-like
+    // with the properties FileList exposes is enough for `input.files?.[0]`.
+    Object.defineProperty(input, "files", { value: [file] });
+
+    input.dispatchEvent(new Event("change"));
+    await vi.waitFor(() => expect(value(root, "#input-old")).toBe(VALID_OLD));
+  });
+
+  it("does nothing when the file input change fires with no selected file", () => {
+    mountApp(root);
+    const input = root.querySelector<HTMLInputElement>("#upload-old")!;
+
+    expect(() => input.dispatchEvent(new Event("change"))).not.toThrow();
+    expect(value(root, "#input-old")).toBe("");
+  });
 });
