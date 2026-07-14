@@ -55,4 +55,22 @@ describe("diffPathsAndOperations", () => {
 
     expect(diffPathsAndOperations(oldSpec, newSpec)).toEqual([]);
   });
+
+  it("does not throw on a null path item (a YAML key with no value)", () => {
+    // `/x:` with nothing indented underneath parses to `{"/x": null}`, a
+    // plausible authoring slip rather than deliberately hostile input.
+    const oldSpec = spec({ "/x": null as unknown as OpenApiSpec["paths"][string] });
+    const newSpec = spec({ "/x": { get: {} } });
+
+    expect(() => diffPathsAndOperations(oldSpec, newSpec)).not.toThrow();
+  });
+
+  it("treats a null path item as carrying no operations", () => {
+    const oldSpec = spec({ "/x": null as unknown as OpenApiSpec["paths"][string] });
+    const newSpec = spec({ "/x": { get: {} } });
+
+    const changes = diffPathsAndOperations(oldSpec, newSpec);
+
+    expect(changes).toEqual([expect.objectContaining({ severity: "safe", path: "/x", method: "get" })]);
+  });
 });

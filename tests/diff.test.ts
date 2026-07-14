@@ -8,4 +8,10 @@ describe("diffSpecs", () => {
     const newSpec = parseSpec('{"openapi": "3.0.0", "paths": {}}');
     expect(diffSpecs(oldSpec, newSpec)).toEqual([]);
   });
+
+  it("does not throw when a shared path is null on one side", () => {
+    const oldSpec = parseSpec('{"openapi": "3.0.0", "paths": {"/x": null}}');
+    const newSpec = parseSpec('{"openapi": "3.0.0", "paths": {"/x": {"get": {}}}}');
+    expect(() => diffSpecs(oldSpec, newSpec)).not.toThrow();
+  });
 });
