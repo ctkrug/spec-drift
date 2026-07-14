@@ -1,8 +1,8 @@
 {
   "name": "spec-drift",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "Paste your old and new OpenAPI specs, get a plain-English breaking-change report.",
+  "description": "Browser-based OpenAPI breaking-change detector: paste two specs, get a plain-English report of what breaks your clients.",
   "type": "module",
   "repository": {
     "type": "git",
