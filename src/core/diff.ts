@@ -1,5 +1,5 @@
 import { diffParameters } from "./parameters";
-import { diffPathsAndOperations } from "./paths";
+import { diffPathsAndOperations, normalizePathItem } from "./paths";
 import { diffRequestBodySchema, diffResponseBodySchema } from "./schema";
 import type { Change, HttpMethod, OpenApiSpec, PathItem } from "./types";
 
@@ -31,9 +31,8 @@ export function diffSpecs(oldSpec: OpenApiSpec, newSpec: OpenApiSpec): Change[] 
   const newPaths = newSpec.paths ?? {};
 
   for (const path of Object.keys(oldPaths)) {
-    const newPathItem = newPaths[path];
-    if (!newPathItem) continue;
-    changes.push(...diffSharedOperations(path, oldPaths[path], newPathItem));
+    if (!(path in newPaths)) continue;
+    changes.push(...diffSharedOperations(path, oldPaths[path], newPaths[path]));
   }
 
   return changes;
@@ -41,10 +40,12 @@ export function diffSpecs(oldSpec: OpenApiSpec, newSpec: OpenApiSpec): Change[] 
 
 function diffSharedOperations(path: string, oldPathItem: PathItem, newPathItem: PathItem): Change[] {
   const changes: Change[] = [];
+  const safeOldPathItem = normalizePathItem(oldPathItem);
+  const safeNewPathItem = normalizePathItem(newPathItem);
 
   for (const method of HTTP_METHODS) {
-    const oldOp = oldPathItem[method];
-    const newOp = newPathItem[method];
+    const oldOp = safeOldPathItem[method];
+    const newOp = safeNewPathItem[method];
     if (!oldOp || !newOp) continue;
 
     changes.push(...diffParameters(path, method, oldOp.parameters, newOp.parameters));

@@ -11,8 +11,19 @@ const HTTP_METHODS: HttpMethod[] = [
   "trace",
 ];
 
+/**
+ * Coerces a path item value to a safe object shape. A hand-written or
+ * YAML-authored spec can carry `null` here (e.g. `/x:` with no value
+ * underneath parses to `null`), which would otherwise throw on property
+ * access — normalize it to "no operations" instead.
+ */
+export function normalizePathItem(pathItem: PathItem | null | undefined): PathItem {
+  return pathItem && typeof pathItem === "object" ? pathItem : {};
+}
+
 function operationsIn(pathItem: PathItem): HttpMethod[] {
-  return HTTP_METHODS.filter((method) => pathItem[method] !== undefined);
+  const safePathItem = normalizePathItem(pathItem);
+  return HTTP_METHODS.filter((method) => safePathItem[method] !== undefined);
 }
 
 /**
@@ -48,9 +59,8 @@ export function diffPathsAndOperations(oldSpec: OpenApiSpec, newSpec: OpenApiSpe
   }
 
   for (const path of Object.keys(oldPaths)) {
-    const newPathItem = newPaths[path];
-    if (!newPathItem) continue;
-    changes.push(...diffOperations(path, oldPaths[path], newPathItem));
+    if (!(path in newPaths)) continue;
+    changes.push(...diffOperations(path, oldPaths[path], newPaths[path]));
   }
 
   return changes;
