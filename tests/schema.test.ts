@@ -132,4 +132,14 @@ describe("diffSchemaProperties", () => {
 
     expect(diffSchemaProperties(oldSchema, newSchema)).toEqual([]);
   });
+
+  it("does not stack-overflow on a self-referencing (circular) schema object", () => {
+    // js-yaml resolves `&anchor`/`*alias` pairs to the same object instance, so a
+    // spec using an anchor to reference its own ancestor parses into a genuine
+    // circular structure — not just deep nesting. Recursion must be bounded.
+    const cyclic: JsonSchema = { type: "object", properties: {} };
+    cyclic.properties!.self = cyclic;
+
+    expect(() => diffSchemaProperties(cyclic, cyclic)).not.toThrow();
+  });
 });

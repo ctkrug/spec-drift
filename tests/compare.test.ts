@@ -47,4 +47,28 @@ describe("compareSpecs", () => {
     expect(result.newError).toBeTruthy();
     expect(result.reportHtml).toBeNull();
   });
+
+  it("does not crash on a YAML spec whose anchor/alias forms a circular schema", () => {
+    // A pathological but valid YAML input: `&s`/`*s` make js-yaml resolve
+    // "properties.a" to the schema object itself, producing a real circular
+    // reference rather than deep-but-finite nesting.
+    const cyclic = `
+openapi: "3.0.0"
+paths:
+  /x:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: &s
+                type: object
+                properties:
+                  a: *s
+`;
+
+    expect(() => compareSpecs(cyclic, cyclic)).not.toThrow();
+    const result = compareSpecs(cyclic, cyclic);
+    expect(result.reportHtml).not.toBeNull();
+  });
 });
