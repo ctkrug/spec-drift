@@ -489,3 +489,123 @@ button {
   border-left-color: var(--success);
   color: var(--text-muted);
 }
+
+/* Below-the-fold: search-intent copy, FAQ, and footer links */
+
+.site-footer {
+  border-top: 1px solid rgba(148, 197, 255, 0.12);
+  padding: var(--space-6) var(--space-4) var(--space-8);
+}
+
+.about {
+  max-width: 70ch;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.about-title {
+  font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.6rem);
+  color: var(--accent);
+  line-height: 1.25;
+}
+
+.about-lede {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.faq {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.faq-item {
+  background: var(--surface-1);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-panel);
+  padding: var(--space-2) var(--space-3);
+}
+
+.faq-item dt {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-bottom: var(--space-1);
+}
+
+.faq-item dd {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.faq-item dd em {
+  color: var(--accent-support);
+  font-style: normal;
+}
+
+.faq-item dd code {
+  font-family: var(--font-display);
+  font-size: 0.85em;
+  color: var(--accent);
+  background: var(--surface-2);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.footer-links {
+  max-width: 70ch;
+  margin: var(--space-6) auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.footer-cta {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--bg);
+  background: var(--accent);
+  border-radius: var(--radius);
+  padding: 10px 18px;
+  text-decoration: none;
+  transition: background var(--motion-ui), box-shadow var(--motion-ui);
+}
+
+.footer-cta:hover {
+  background: #5cc9fb;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+.footer-cta:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.footer-portfolio {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color var(--motion-ui), border-color var(--motion-ui);
+}
+
+.footer-portfolio:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.footer-portfolio:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: 2px;
+}

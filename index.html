@@ -3,11 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spec Drift — plain-English OpenAPI breaking-change reports</title>
+    <title>Spec Drift — OpenAPI breaking-change detector in plain English</title>
     <meta
       name="description"
-      content="Paste your old and new OpenAPI specs, get a plain-English breaking-change report instead of a raw JSON diff."
+      content="An OpenAPI breaking change detector that runs in your browser. Paste an old and new spec and get a plain-English report of what breaks your API clients — no upload, no account."
     />
+    <meta property="og:title" content="Spec Drift — OpenAPI breaking-change detector in plain English" />
+    <meta
+      property="og:description"
+      content="Paste your old and new OpenAPI specs and get a plain-English breaking-change report instead of a raw JSON diff. Runs entirely in the browser."
+    />
+    <meta property="og:type" content="website" />
     <link
       rel="icon"
       type="image/svg+xml"
@@ -24,5 +30,75 @@
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+
+    <!-- Below-the-fold: search-intent copy + FAQ, styled to match the app.
+         Kept static (outside #app, which app.ts owns) so it renders without
+         JS and stays crawlable. -->
+    <footer class="site-footer">
+      <section class="about" aria-labelledby="about-title">
+        <h2 class="about-title" id="about-title">
+          An OpenAPI breaking-change detector that speaks plain English
+        </h2>
+        <p class="about-lede">
+          Spec Drift is a browser-based OpenAPI breaking change detector. Paste an old and a new
+          spec and it reads the difference through OpenAPI semantics, then tells you which changes
+          will break a client integration and which are safe to ship. There is no JSON diff to
+          decode, no account, and no server round-trip: the comparison runs entirely in your tab.
+        </p>
+
+        <dl class="faq">
+          <div class="faq-item">
+            <dt>What counts as a breaking change in an OpenAPI spec?</dt>
+            <dd>
+              A change that can make a previously valid client request fail, or make a response the
+              client relied on disappear. Spec Drift flags a parameter or body field becoming
+              required, a path or operation being removed, an enum value being dropped, a request
+              type being narrowed, and a response field being removed or made optional. Additive
+              changes (a new optional field, a widened enum, a new endpoint) are listed separately
+              as safe.
+            </dd>
+          </div>
+          <div class="faq-item">
+            <dt>How is this different from a Swagger diff tool?</dt>
+            <dd>
+              A Swagger diff tool online shows you the textual delta between two files. Spec Drift
+              is a checker, not a differ: instead of raw plus/minus lines it classifies each change
+              by client impact and writes it as a sentence, like <em>"user_id became required, so
+              any client not sending it will now get a 400."</em> You get the answer, not the
+              homework.
+            </dd>
+          </div>
+          <div class="faq-item">
+            <dt>Do I need to upload my spec anywhere?</dt>
+            <dd>
+              No. Spec Drift is a client-side API breaking change checker. Your specs never leave
+              the browser, there is no backend, and nothing is stored. The optional share link
+              encodes the two specs into the URL itself, so even sharing a report involves no
+              server.
+            </dd>
+          </div>
+          <div class="faq-item">
+            <dt>Which OpenAPI versions does it support?</dt>
+            <dd>
+              OpenAPI 3.0 and 3.1, in JSON or YAML. It treats 3.0's <code>nullable: true</code> and
+              3.1's <code>type: [..., "null"]</code> as equivalent, so migrating between the two
+              dialects does not show up as a false breaking change.
+            </dd>
+          </div>
+          <div class="faq-item">
+            <dt>Can I use the report in a pull request or release notes?</dt>
+            <dd>
+              Yes. Export the report as Markdown and paste it into a PR description, a changelog, or
+              release notes. Or copy a share link that reproduces the exact report for a teammate.
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <nav class="footer-links" aria-label="Project links">
+        <a class="footer-cta" href="https://github.com/ctkrug/spec-drift">View on GitHub</a>
+        <a class="footer-portfolio" href="https://apps.charliekrug.com">More by Charlie Krug</a>
+      </nav>
+    </footer>
   </body>
 </html>
